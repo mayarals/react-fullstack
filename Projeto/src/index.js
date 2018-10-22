@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import Conta from './paginas/Conta'
+import Login from './paginas/Login/Login'
 import './index.css'
 
-ReactDOM.render(<Conta />, document.getElementById('projeto'))
+ReactDOM.render(<Login />, document.getElementById('projeto'))
