@@ -1,55 +1,45 @@
-import React from 'react'
+import React, { Component } from 'react'
 import './Campo.css'
 
-/*
-CAMPO:
-1. O componente pode mudar de estado? Sim // Classe, herda (extends) de outra classe (ex. React.Component) "Campo é um componente?"
-render tem que retornar o HTML da tela, função render não recebe parametro (é sempre vazia nos parenteses)
-Para acessar o props é necessario adicionar o this
-
-2. O que muda? state = {erro: ‘’} ou {erro: ‘Campo obrigatório’}
-
-3.Qual o estado inicial? {erro: ‘’} // constructor
-Super: acessa a classe "superior"
-
-4.O que faz ele mudar? 
-evento de change (digita no campo) // function onChange para verificar se eu devo ou não mostrar uma mensagem de erro
-if (condição) mostra erro
-- Email: obrigatório, tenha pelo menos 10 caracteres
-- Senha: obrigatório, pelo menos 6 caracteres
-evento de blur (sai do campo)
-
-=> (arrow function)
-target(alvo): exerce a mesma função que document.getElementById('id')
-setState = altera o estado e chama a função render
-trim(): remover espaços desnecessarios de uma string
-pattern e regex *pesquisar* site: regex101 para testar as regex
-*/
-
-class Campo extends React.Component {
-  constructor(props){
+class Campo extends Component {
+  constructor(props) {
     super(props)
-    this.state = {erro: ''}
+    this.state = { 
+      modificado: false, 
+      erro: '' 
+    }
   }
 
-   valida = (evento) => {
-     const input = evento.target
-     if (this.props.required && input.value.trim() === '') {
-      this.setState({erro: 'Campo obrigatório'}) //campo obrigatorio 'required'
+  temErro = () => {
+    if (!this.state.modificado || this.state.erro) {
+      return true
+    } else {
+      return false
+    }
+  }
 
-     } else if (this.props.minLength && input.value.length < this.props.minLength){ //pelo menos 10 caracteres
-      this.setState({erro: `Digite pelo menos ${this.props.minLength} caracteres`})
-     
-     } else if (this.props.pattern && !this.props.pattern.test(input.value)) {
-       this.setState({erro: 'Valor inválido'})
+  valida = (evento) => {
+    const input = evento.target
+    const { value, type } = input
+    const { required, minLength } = this.props
+    const regex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@(([[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    let mensagem = ''
 
-     } else {
-       this.setState({erro: ''})
-     }
-   }
+    if (required && value.trim() === '') {
+      mensagem = 'Campo obrigatório'
+    } else if (minLength && value.length < minLength) {
+      mensagem = `Digite pelo menos ${minLength} caracteres`
+    } else if (type === 'email' && !regex.test(value)) {
+      mensagem = 'Valor inválido'
+    }
 
+    this.setState(
+      { modificado: true, erro: mensagem }, 
+      this.props.onChange
+    )
+  }
 
-  render(){
+  render() {
     return (
       <div>
         <input 
@@ -59,17 +49,13 @@ class Campo extends React.Component {
           name={this.props.name}
           placeholder={this.props.placeholder}
           onChange={this.valida}
+          onBlur={this.valida}
         />
 
-        <p className="grupo__erro">{this.state.erro}</p>
+        <p className="campo__erro">{this.state.erro}</p>
       </div>
     )
   }
 }
 
-
-
 export default Campo
-
-// {this.state.erro} pega a mensagem de erro
-// value: busca o que foi inserido no campo dentro do state
